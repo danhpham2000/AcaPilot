@@ -1,0 +1,11 @@
+streamlit
+streamlit-shadcn-ui
+llama-index
+langchain
+langgraph
+chromadb
+pypdf
+langsmith
+langchain-openai
+python-dotenv
+tiktoken
