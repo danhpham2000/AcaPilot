@@ -51,7 +51,7 @@ else:
                                                                  response_mode="compact",
                                                                  llm=OpenAI(model="gpt-4o", api_key=os.getenv("OPENAI_API_KEY")))
                             data = query_engine.query(
-                                f"Provide me {num_of_questions} number of quizzes with software engineer related based on the documents"
+                                f"Provide me {num_of_questions} number of quizzes with ACCT_100 related based on the documents"
                             )
                             st.session_state[quiz_key] = data.response                        
 

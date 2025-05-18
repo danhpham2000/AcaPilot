@@ -7,8 +7,6 @@ from llama_index.llms.openai import OpenAI
 from vector import storage_context, vector_store
 from schema import *
 
-
-
 spring_semester_begin = datetime.date(datetime.datetime.now().year, 1, 1)
 spring_semester_end = datetime.date(datetime.datetime.now().year, 5, 30)
 
@@ -22,9 +20,16 @@ st.title("Dashboard")
 st.write("Spring Semester " + str(datetime.datetime.now().year))
 
 
+
 if "courses" not in st.session_state:
     st.session_state.courses = []
-    courses = st.session_state.courses
+
+if "resources" not in st.session_state:
+    st.session_state.resources = []
+
+
+if "roadmap" not in st.session_state:
+    st.session_state.roadmap = []
 
 
 with st.popover("Add your class"):
@@ -48,7 +53,6 @@ if submit:
 
         
     st.session_state.courses.append({"name": course_name, "code": course_code, "syllabus": False, "files": []})
-    courses = st.session_state.courses
 
 count = 0
 
@@ -72,16 +76,23 @@ for course in st.session_state.courses:
                                                     storage_context=storage_context,
                                                     embed_model=embed_model)
             
-            query_engine = index.as_query_engine(output_cls=ClassInfo, response_mode="compact",
+            query_engine_1 = index.as_query_engine(output_cls=ClassInfo, response_mode="compact",
                                                  llm=model)
-            data = query_engine.query("Extract all important exams and project information from the syllabus along with their date and timeframe")
+            assignment = query_engine_1.query("You should extract ALL everything important number of assignments, number of exams, " \
+            "any projects, along with all the gradings of  " \
+            "exams from the ACCT_100 syllabus along with their date and timeframe")
 
-            st.write(data.response)
+            query_engine_2 = index.as_query_engine(output_cls=Roadmap, response_mode="compact",
+                                                 llm=model)
+            roadmap = query_engine_2.query("You should give the students tips and external resources" \
+            "on how to master this class and get good grades")
 
-        
-        
+            st.session_state.resources.append(assignment.response)
+            st.session_state.roadmap.append(roadmap.response)
+            
 
-        
+
+                
         
         
 
