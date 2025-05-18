@@ -26,13 +26,15 @@ if "courses" not in st.session_state:
     st.session_state.courses = []
     courses = st.session_state.courses
 
-with st.form("Add your current classes"):
-    course_name = st.text_input("Class name")
-    course_code = st.text_input("Class code")
-    submit = st.form_submit_button("Add class")
-    
 
-   
+with st.popover("Add your class"):
+    with st.form("Add your current classes"):
+        course_name = st.text_input("Class name")
+        course_code = st.text_input("Class code")
+        submit = st.form_submit_button("Add class")
+
+    
+st.markdown("<br/>", unsafe_allow_html=True)   
 
 if submit:
     if not course_name or not course_code:
@@ -42,16 +44,19 @@ if submit:
     for current_course in st.session_state.courses:
         if course_name in current_course["name"] or course_code in current_course["code"]:
             st.warning(f"{course_name} already in your dashboard")
+            st.session_state.courses.remove({"name": course_name, "code": course_code, "syllabus": False, "files": []})
+
         
     st.session_state.courses.append({"name": course_name, "code": course_code, "syllabus": False, "files": []})
     courses = st.session_state.courses
 
-
+count = 0
 
 for course in st.session_state.courses:
     st.write(course["name"])
     st.write(course["code"])
-    file = st.file_uploader("Upload your syllabus", key=f"{course['code']}_syllabus")
+    file = st.file_uploader("Upload your syllabus", key=f"{course['code'] + str(count)}_syllabus")
+    count += 1
     
     if file is not None:
         with open(os.path.join("data", file.name), "wb") as f:
@@ -69,15 +74,9 @@ for course in st.session_state.courses:
             
             query_engine = index.as_query_engine(output_cls=ClassInfo, response_mode="compact",
                                                  llm=model)
-            response = query_engine.query("Extract all exam and project names along with their " \
-            "corresponding dates or weeks from the syllabus calendar.")
+            data = query_engine.query("Extract all important exams and project information from the syllabus along with their date and timeframe")
 
-            print(response)
-            print(course)
-
-
-            st.write(course)
-
+            st.write(data.response)
 
         
         
